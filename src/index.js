@@ -6,18 +6,12 @@ const { stdin, stdout, exit } = process;
 
 const io = readline.createInterface(stdin, stdout);
 
-
-const getNextLine = async function* () {
-  for await (const line of io) {
-    yield line
-  }
-};
-
 (async () => {
   io.on('SIGINT', () => exit(0))
   while (true) {
     io.prompt()
-    input = (await getNextLine().next()).value
+    const ask = (q) => new Promise((res, rej) => io.question(q, answer => res(answer)))
+    const input = await ask('Q: ')
     console.log(io.eventNames())
     switch (input) {
       case 'choice':
