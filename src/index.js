@@ -2,7 +2,7 @@ const readline = require('readline');
 
 const arrowOptions = require('./arrow-options')
 
-const { stdin, stdout } = process;
+const { stdin, stdout, exit } = process;
 
 const io = readline.createInterface(stdin, stdout);
 
@@ -14,12 +14,14 @@ const getNextLine = async function* () {
 };
 
 (async () => {
+  io.on('SIGINT', () => exit(0))
   while (true) {
-    const input = (await getNextLine().next()).value;
-    if (!input) break
+    io.prompt()
+    input = (await getNextLine().next()).value
+    console.log(io.eventNames())
     switch (input) {
       case 'choice':
-        arrowOptions()
+        arrowOptions(io)
         break
       default:
         console.log('Your input: ', input)
