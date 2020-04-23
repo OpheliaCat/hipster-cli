@@ -1,24 +1,20 @@
-const readline = require('readline');
+const { stdin, stdout } = process;
 
-const arrowOptions = require('./arrow-options')
+const { createIO, exitOnTermination, getCurrentInput,
+  handleOptions } = require('./adapters/console.adapter');
 
-const { stdin, stdout, exit } = process;
-
-const io = readline.createInterface(stdin, stdout);
+createIO(stdin, stdout);
 
 (async () => {
-  io.on('SIGINT', () => exit(0))
+  exitOnTermination();
   while (true) {
-    io.prompt()
-    const ask = (q) => new Promise((res, rej) => io.question(q, answer => res(answer)))
-    const input = await ask('Q: ')
-    console.log(io.eventNames())
+    const input = await getCurrentInput('> ');
     switch (input) {
-      case 'choice':
-        arrowOptions(io)
-        break
+      case 'choose':
+        handleOptions(['option1', 'option2', 'option3']);
+        break;
       default:
-        console.log('Your input: ', input)
+        console.log('Your input: ', input);
     }
   }
 })()
