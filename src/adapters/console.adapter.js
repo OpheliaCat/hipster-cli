@@ -4,6 +4,16 @@ const { exit } = process
 const TERMINATION_CODE = 'SIGINT'
 let io = null
 
+const renderOptionsChoice = (options, currentChoice = -options.length) => {
+  const { output } = io
+  readline.moveCursor(output, 0, -options.length)
+  const offset = currentChoice + options.length
+  options.forEach((option, i) => {
+    const filler = i === offset ? '-' : ' '
+    io.write(`${filler}${option}\n`)
+  })
+}
+
 module.exports = Object.freeze({
   createIO: (readableStream, writableStream) => io = readline.createInterface({
     input: readableStream,
@@ -12,11 +22,9 @@ module.exports = Object.freeze({
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptions: options => {
-    const { output } = io
-    options.forEach(option => {
-      io.write(` ${option}\n`)
-    })
-    readline.moveCursor(output, 0, -2)
-    console.log('-')
+    options.forEach(option => io.write(` ${option}\n`))
+    renderOptionsChoice(options)
+    const currentChoice = -options.length + 1
+    renderOptionsChoice(options, currentChoice)
   }
 })

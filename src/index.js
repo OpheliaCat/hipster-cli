@@ -11,7 +11,7 @@ createIO(stdin, stdout);
     const input = await getCurrentInput('> ');
     switch (input) {
       case 'choose':
-        handleOptions(['option1', 'option2', 'option3']);
+        handleOptions(['option1', 'casualOption2', 'specificOption3']);
         break;
       default:
         console.log('Your input: ', input);
