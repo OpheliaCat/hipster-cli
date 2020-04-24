@@ -1,7 +1,7 @@
 const { stdin, stdout } = process;
 
 const { createIO, exitOnTermination, getCurrentInput,
-  handleOptions } = require('./adapters/console.adapter');
+  handleOptionsList } = require('./adapters/console.adapter');
 
 createIO(stdin, stdout);
 
@@ -11,7 +11,7 @@ createIO(stdin, stdout);
     const input = await getCurrentInput('> ');
     switch (input) {
       case 'choose':
-        handleOptions(['option1', 'casualOption2', 'specificOption3']);
+        handleOptionsList(['option1', 'casualOption2', 'specificOption3']);
         break;
       default:
         console.log('Your input: ', input);

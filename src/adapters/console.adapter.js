@@ -1,16 +1,29 @@
 const readline = require('readline')
-const { exit } = process
+const { stdin, exit } = process
 
 const TERMINATION_CODE = 'SIGINT'
 let io = null
 
-const renderOptionsChoice = (options, currentChoice = options.length) => {
+const renderOptionsChoice = (options, currentChoice = 0) => {
   const { output } = io
-  readline.moveCursor(output, 0, -options.length)
-  const offset = options.length - currentChoice
+  readline.moveCursor(output, -2, -options.length)
   options.forEach((option, i) => {
-    const filler = i === offset ? '-' : ' '
+    const filler = i === currentChoice ? '-' : ' '
     io.write(`${filler}${option}\n`)
+  })
+}
+
+const handleKeystrokes = (options, currentChoice = 0) => {
+  const { input } = io
+  readline.emitKeypressEvents(input)
+  stdin.setRawMode(true)
+  stdin.on('keypress', (_, { name }) => {
+    if (name === 'down'){
+      currentChoice++
+      if (currentChoice > options.length - 1)
+        currentChoice = 0
+      renderOptionsChoice(options, currentChoice)
+    }
   })
 }
 
@@ -21,11 +34,10 @@ module.exports = Object.freeze({
   }),
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
-  handleOptions: options => {
+  handleOptionsList: options => {
     io.write('Please, choose one of the following options:\n')
-    options.forEach(option => io.write(`${option}\n`))
+    options.forEach(option => io.write(` ${option}\n`))
     renderOptionsChoice(options)
-    const currentChoice = options.length - 1
-    renderOptionsChoice(options, currentChoice)
+    handleKeystrokes(options)
   }
 })
