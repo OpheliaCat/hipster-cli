@@ -7,27 +7,35 @@ const RESET_COLOR_CODE = '\x1b[0m'
 let io = null;
 
 const renderOptions = (options, index) => {
-  readline.cursorTo(io.output, 0, 0)
+  readline.cursorTo(io.output, 0, 1)
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
     .forEach(option => io.write(`${option}\n`))
 }
 
-const handleOptionOnKeyPress = options => {
+const handleOptionOnKeyPress = async options => {
   let currentIndex = 0
-  io.input.on('keypress', (_, { name }) => {
-    if (name === 'down') {
-      currentIndex++
-      if (currentIndex > options.length - 1)
-        currentIndex = 0
-      renderOptions(options, currentIndex)
-    }
-    if (name === 'up') {
-      currentIndex--
-      if (currentIndex < 0)
-        currentIndex = options.length - 1
-      renderOptions(options, currentIndex)
-    }
+  await new Promise(resolve => {
+    io.input.on('keypress', (_, { name }) => {
+      switch (name) {
+        case 'down':
+          currentIndex++
+          if (currentIndex > options.length - 1)
+            currentIndex = 0
+          renderOptions(options, currentIndex)
+          break
+        case 'up':
+          currentIndex--
+          if (currentIndex < 0)
+            currentIndex = options.length - 1
+          renderOptions(options, currentIndex)
+          break
+        case 'return':
+          resolve()
+        default:
+          break
+      }
+    })
   });
 }
 
@@ -38,9 +46,10 @@ module.exports = Object.freeze({
   }),
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
-  handleOptionsList: options => {
+  handleOptionsList: async options => {
+    readline.cursorTo(io.output, 0, 0)
     io.write('Please, choose one of the following options:\n');
     renderOptions(options, 0)
-    handleOptionOnKeyPress(options)
+    await handleOptionOnKeyPress(options)
   }
 })
