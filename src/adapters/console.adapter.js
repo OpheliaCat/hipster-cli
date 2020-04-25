@@ -7,6 +7,7 @@ const RESET_COLOR_CODE = '\x1b[0m'
 let io = null;
 
 const renderOptions = (options, index) => {
+  readline.cursorTo(io.output, 0, 0)
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
     .forEach(option => io.write(`${option}\n`))
