@@ -2,40 +2,41 @@ const readline = require('readline');
 const { exit } = process;
 
 const TERMINATION_CODE = 'SIGINT';
-const COLOR_CODE = '\x1b[32m'
-const RESET_COLOR_CODE = '\x1b[0m'
+const COLOR_CODE = '\x1b[32m';
+const RESET_COLOR_CODE = '\x1b[0m';
 let io = null;
 
 const renderOptions = (options, index) => {
-  readline.cursorTo(io.output, 0, 1)
+  readline.cursorTo(io.output, 0, 6);
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
-    .forEach(option => io.write(`${option}\n`))
+    .forEach(option => io.write(`${option}\n`));
 }
 
 const handleOptionOnKeyPress = async options => {
-  let currentIndex = 0
+  let currentIndex = 0;
   await new Promise(resolve => {
     io.input.on('keypress', (_, { name }) => {
       switch (name) {
         case 'down':
-          currentIndex++
+          currentIndex++;
           if (currentIndex > options.length - 1)
-            currentIndex = 0
-          renderOptions(options, currentIndex)
-          break
+            currentIndex = 0;
+          renderOptions(options, currentIndex);
+          break;
         case 'up':
-          currentIndex--
+          currentIndex--;
           if (currentIndex < 0)
-            currentIndex = options.length - 1
-          renderOptions(options, currentIndex)
-          break
+            currentIndex = options.length - 1;
+          renderOptions(options, currentIndex);
+          break;
         case 'return':
-          resolve()
+          resolve();
+          break;
         default:
-          break
+          break;
       }
-    })
+    });
   });
 }
 
@@ -47,9 +48,9 @@ module.exports = Object.freeze({
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptionsList: async options => {
-    readline.cursorTo(io.output, 0, 0)
+    readline.cursorTo(io.output, 0, 5);
     io.write('Please, choose one of the following options:\n');
-    renderOptions(options, 0)
-    await handleOptionOnKeyPress(options)
+    renderOptions(options, 0);
+    await handleOptionOnKeyPress(options);
   }
 })
