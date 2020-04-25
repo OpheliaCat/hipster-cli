@@ -2,14 +2,15 @@ const readline = require('readline');
 const { exit } = process;
 
 const TERMINATION_CODE = 'SIGINT';
-const COLOR_CODE = '\x1b[32m';
-const RESET_COLOR_CODE = '\x1b[0m';
+const COLOR_CODE = '\u001B[32m';
+const RESET_COLOR_CODE = '\u001B[0m';
 const CLEAR_SCREEN_CODE = '\u001B[2J';
 const CURSOR_ZERO_CODE = '\u001B[0;0f';
 let io = null;
 
 const renderOptions = (options, index) => {
-  io.write(`${CLEAR_SCREEN_CODE}${CURSOR_ZERO_CODE}`);
+  io.write(CURSOR_ZERO_CODE);
+  io.write(CLEAR_SCREEN_CODE);
   io.write('Please, choose one of the following options:\n');
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
