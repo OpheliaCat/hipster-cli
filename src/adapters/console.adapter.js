@@ -7,15 +7,16 @@ const RESET_COLOR_CODE = '\x1b[0m';
 let io = null;
 
 const renderOptions = (options, index) => {
-  readline.cursorTo(io.output, 0, 6);
+  io.write('\u001B[2J\u001B[0;0f');
+  io.write('Please, choose one of the following options:\n');
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
     .forEach(option => io.write(`${option}\n`));
 }
 
-const handleOptionOnKeyPress = async options => {
+const handleOptionOnKeyPress = options => {
   let currentIndex = 0;
-  await new Promise(resolve => {
+  return new Promise(resolve => {
     io.input.on('keypress', (_, { name }) => {
       switch (name) {
         case 'down':
@@ -48,8 +49,6 @@ module.exports = Object.freeze({
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptionsList: async options => {
-    readline.cursorTo(io.output, 0, 5);
-    io.write('Please, choose one of the following options:\n');
     renderOptions(options, 0);
     await handleOptionOnKeyPress(options);
   }
