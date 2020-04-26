@@ -4,26 +4,24 @@ const { exit } = process;
 const TERMINATION_CODE = 'SIGINT';
 const COLOR_CODE = '\u001B[32m';
 const RESET_COLOR_CODE = '\u001B[0m';
-const CLEAR_SCREEN_CODE = '\u001B[2J';
-const CURSOR_ZERO_CODE = '\u001B[0;0f';
 let io = null;
 
 const renderOptions = (options, index) => {
-  io.write(CURSOR_ZERO_CODE);
-  io.write(CLEAR_SCREEN_CODE);
+  const renderedOptions = [...options];
+  renderedOptions[index] = `${COLOR_CODE}${renderedOptions[index]}${RESET_COLOR_CODE}`;
+  console.clear();
+  readline.cursorTo(io.output, 0, 0);
   io.write('Please, choose one of the following options:\n');
-  // You shouldn't loop through options each time.
-  // Store options in array and change a color of specific option by index
-  options
-    .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
-    // This is perfomance issue. io.write takes some time. You can write whole array at once.
-    .forEach(option => io.write(`${option}\n`));  
+  io.write(renderedOptions.join('\n'));
 }
 
 const handleOptionOnKeyPress = options => {
+  const { input, output } = io
   let currentIndex = 0;
+  let isStreamBlocked = false
+  const mainListener = input.listeners('keypress')[0]
   return new Promise(resolve => {
-    io.input.on('keypress', (_, { name }) => {
+    input.on('keypress', (_, { name }) => {
       switch (name) {
         case 'down':
           currentIndex++;
@@ -38,12 +36,17 @@ const handleOptionOnKeyPress = options => {
           renderOptions(options, currentIndex);
           break;
         case 'return':
+          input.off('keypress', input.listeners('keypress')[input.listenerCount('keypress') - 1]);
+          input.prependListener('keypress', mainListener);
+          io.write(_, { key: 'return' });
           resolve();
-          break; 
-        // Empty default statement doesn't make any sense.
-        // It is better to handle other input. You should forbid user to enter text during options interaction.
+          break;
         default:
-          break; // break at the end of switch doesn't make sense
+          if (!isStreamBlocked) {
+            readline.moveCursor(io.output, -1, 0, () => readline.clearLine(output, 1))
+            input.off('keypress', mainListener);
+            isStreamBlocked = true;
+          }
       }
     });
   });
@@ -58,7 +61,7 @@ module.exports = Object.freeze({
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptionsList: async options => {
     renderOptions(options, 0);
-    // We need to hide cursor during option interaction 
-    await handleOptionOnKeyPress(options); //await doesn't make sense here
+    // We need to hide cursor during option interaction
+    await handleOptionOnKeyPress(options);
   }
 })
