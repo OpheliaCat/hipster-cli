@@ -12,9 +12,12 @@ const renderOptions = (options, index) => {
   io.write(CURSOR_ZERO_CODE);
   io.write(CLEAR_SCREEN_CODE);
   io.write('Please, choose one of the following options:\n');
+  // You shouldn't loop through options each time.
+  // Store options in array and change a color of specific option by index
   options
     .map((option, i) => i === index ? `${COLOR_CODE}${option}${RESET_COLOR_CODE}` : option)
-    .forEach(option => io.write(`${option}\n`));
+    // This is perfomance issue. io.write takes some time. You can write whole array at once.
+    .forEach(option => io.write(`${option}\n`));  
 }
 
 const handleOptionOnKeyPress = options => {
@@ -36,9 +39,11 @@ const handleOptionOnKeyPress = options => {
           break;
         case 'return':
           resolve();
-          break;
+          break; 
+        // Empty default statement doesn't make any sense.
+        // It is better to handle other input. You should forbid user to enter text during options interaction.
         default:
-          break;
+          break; // break at the end of switch doesn't make sense
       }
     });
   });
@@ -53,6 +58,7 @@ module.exports = Object.freeze({
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptionsList: async options => {
     renderOptions(options, 0);
-    await handleOptionOnKeyPress(options);
+    // We need to hide cursor during option interaction 
+    await handleOptionOnKeyPress(options); //await doesn't make sense here
   }
 })
