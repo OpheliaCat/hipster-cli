@@ -62,6 +62,6 @@ module.exports = Object.freeze({
   handleOptionsList: async options => {
     renderOptions(options, 0);
     // We need to hide cursor during option interaction
-    await handleOptionOnKeyPress(options);
+    return handleOptionOnKeyPress(options);
   }
 })
