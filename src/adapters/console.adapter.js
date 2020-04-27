@@ -4,6 +4,8 @@ const { exit } = process;
 const TERMINATION_CODE = 'SIGINT';
 const COLOR_CODE = '\u001B[32m';
 const RESET_COLOR_CODE = '\u001B[0m';
+const HIDE_CURSOR = '\u001B[?25l';
+const SHOW_CURSOR = '\u001B[?25h';
 let io = null;
 
 const renderOptions = (options, index) => {
@@ -20,6 +22,7 @@ const handleOptionOnKeyPress = options => {
   let currentIndex = 0;
   let isStreamBlocked = false
   const mainListener = input.listeners('keypress')[0]
+  io.write(HIDE_CURSOR);
   return new Promise(resolve => {
     input.on('keypress', (_, { name }) => {
       switch (name) {
@@ -39,11 +42,12 @@ const handleOptionOnKeyPress = options => {
           input.off('keypress', input.listeners('keypress')[input.listenerCount('keypress') - 1]);
           input.prependListener('keypress', mainListener);
           io.write(_, { key: 'return' });
+          io.write(SHOW_CURSOR);
           resolve();
           break;
         default:
           if (!isStreamBlocked) {
-            readline.moveCursor(io.output, -1, 0, () => readline.clearLine(output, 1))
+            readline.moveCursor(io.output, -1, 0, () => readline.clearLine(output, 1));
             input.off('keypress', mainListener);
             isStreamBlocked = true;
           }
