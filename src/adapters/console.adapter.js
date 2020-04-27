@@ -65,7 +65,6 @@ module.exports = Object.freeze({
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
   handleOptionsList: options => {
     renderOptions(options, 0);
-    // We need to hide cursor during option interaction
     return handleOptionOnKeyPress(options);
   }
 })
