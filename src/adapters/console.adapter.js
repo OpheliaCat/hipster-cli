@@ -13,16 +13,16 @@ const renderOptions = (options, index) => {
   renderedOptions[index] = `${COLOR_CODE}${renderedOptions[index]}${RESET_COLOR_CODE}`;
   console.clear();
   readline.cursorTo(io.output, 0, 0);
-  io.write('Please, choose one of the following options:\n');
-  io.write(renderedOptions.join('\n'));
+  io.write(`Please, choose one of the following options:\n${renderedOptions.join('\n')}\n`);
 }
 
 const handleOptionOnKeyPress = options => {
-  const { input, output } = io
+  const { input } = io;
   let currentIndex = 0;
-  let isStreamBlocked = false
-  const mainListener = input.listeners('keypress')[0]
+  const mainListener = input.listeners('keypress')[0];
+  input.off('keypress', mainListener);
   io.write(HIDE_CURSOR);
+  renderOptions(options, 0);
   return new Promise(resolve => {
     input.on('keypress', (_, { name }) => {
       switch (name) {
@@ -45,12 +45,6 @@ const handleOptionOnKeyPress = options => {
           io.write(SHOW_CURSOR);
           resolve();
           break;
-        default:
-          if (!isStreamBlocked) {
-            readline.moveCursor(io.output, -1, 0, () => readline.clearLine(output, 1));
-            input.off('keypress', mainListener);
-            isStreamBlocked = true;
-          }
       }
     });
   });
@@ -63,8 +57,5 @@ module.exports = Object.freeze({
   }),
   getCurrentInput: prefix => new Promise(resolve => io.question(prefix, answer => resolve(answer))),
   exitOnTermination: () => io.on(TERMINATION_CODE, () => exit(0)),
-  handleOptionsList: options => {
-    renderOptions(options, 0);
-    return handleOptionOnKeyPress(options);
-  }
+  handleOptionsList: options => handleOptionOnKeyPress(options)
 })
