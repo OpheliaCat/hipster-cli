@@ -7,14 +7,6 @@ createIO(stdin, stdout);
 
 (async () => {
   exitOnTermination();
-  while (true) {
-    const input = await getCurrentInput('> ');
-    switch (input) {
-      case 'choose':
-        await handleOptionsList(['option1', 'casualOption2', 'specificOption3']);
-        break;
-      default:
-        console.log('Your input: ', input);
-    }
-  }
+  await handleOptionsList(['option1', 'casualOption2', 'specificOption3']);
+  await getCurrentInput('> ');
 })()
