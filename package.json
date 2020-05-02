@@ -17,5 +17,6 @@
   "bugs": {
     "url": "https://github.com/HatsuneMikuLab/hipster-cli/issues"
   },
-  "homepage": "https://github.com/HatsuneMikuLab/hipster-cli#readme"
+  "homepage": "https://github.com/HatsuneMikuLab/hipster-cli#readme",
+  "dependencies": {}
 }
